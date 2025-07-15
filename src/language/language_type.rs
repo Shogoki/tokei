@@ -25,8 +25,9 @@ include!(concat!(env!("OUT_DIR"), "/language_type.rs"));
 
 impl Serialize for LanguageType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         serializer.serialize_str(self.name())
     }
 }
@@ -51,7 +52,8 @@ impl LanguageType {
 
         let mut stats = Report::new(path);
 
-        stats += self.parse_from_slice(&text, config);
+        let file_stats = self.parse_from_slice(&text, config);
+        stats += file_stats;
 
         Ok(stats)
     }
@@ -63,7 +65,16 @@ impl LanguageType {
 
     /// Parses the bytes provided as the given [`LanguageType`].
     pub fn parse_from_slice<A: AsRef<[u8]>>(self, text: A, config: &Config) -> CodeStats {
-        let text = text.as_ref();
+        let mut text = text.as_ref();
+        let func = config.transform_fn;
+        let transformed: String;
+        text = match func {
+            Some(f) => {
+                transformed = f(text, &self);
+                transformed.as_bytes()
+            }
+            _ => text,
+        };
 
         if self == LanguageType::Jupyter {
             return self
@@ -73,21 +84,16 @@ impl LanguageType {
 
         let syntax = SyntaxCounter::new(self);
 
-        if let Some(end) = syntax
-            .shared
-            .important_syntax
-            .find(text)
-            .and_then(|m| {
-                // Get the position of the last line before the important
-                // syntax.
-                text[..=m.start()]
-                    .iter()
-                    .rev()
-                    .position(|&c| c == b'\n')
-                    .filter(|&p| p != 0)
-                    .map(|p| m.start() - p)
-            })
-        {
+        if let Some(end) = syntax.shared.important_syntax.find(text).and_then(|m| {
+            // Get the position of the last line before the important
+            // syntax.
+            text[..=m.start()]
+                .iter()
+                .rev()
+                .position(|&c| c == b'\n')
+                .filter(|&p| p != 0)
+                .map(|p| m.start() - p)
+        }) {
             let (skippable_text, rest) = text.split_at(end + 1);
             let is_fortran = syntax.shared.is_fortran;
             let is_literate = syntax.shared.is_literate;
@@ -150,6 +156,31 @@ impl LanguageType {
                 line.trim()
             };
             trace!("{}", String::from_utf8_lossy(line));
+
+            let is_test = line == b"#[cfg(test)]" || line == b"#[test]";
+            if is_test {
+                let test_start = end + 1;
+                let rest = &lines[test_start..];
+                let mut brace_depth: isize = 0;
+                let mut test_length = 0;
+                for c in rest {
+                    test_length += 1;
+                    match c {
+                        b'{' => brace_depth += 1,
+                        b'}' => brace_depth -= 1,
+                        b'\n' if brace_depth <= 0 => break,
+                        _ => {}
+                    }
+                }
+                let test_bytes = &rest[..test_length];
+                let syntax = SyntaxCounter::new(self);
+                let mut test_stats =
+                    self.parse_lines(config, test_bytes, Default::default(), syntax);
+                test_stats.code += 1; // The #[cfg(test)] directive.
+                *stats.blobs.entry(LanguageType::Tests).or_default() += test_stats;
+                stepper = LineStep::new(b'\n', test_start + test_length, lines.len());
+                continue;
+            }
 
             if syntax.try_perform_single_line_analysis(line, &mut stats) {
                 continue;

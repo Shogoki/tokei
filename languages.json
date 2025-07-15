@@ -25,6 +25,11 @@
       "multi_line_comments": [["{-", "-}"]],
       "extensions": ["agda"]
     },
+    "Aleo": {
+      "line_comment": ["//"],
+      "multi_line_comments": [["/*", "*/"]],
+      "extensions": ["aleo"],
+    },
     "Alex": {
       "extensions": ["x"]
     },
@@ -169,6 +174,12 @@
       "multi_line_comments": [["{-", "-}"]],
       "extensions": ["cabal"]
     },
+    "Cairo": {
+      "line_comment": ["//"],
+      "multi_line_comments": [["/*", "*/"]],
+      "extensions": ["cairo"],
+      "important_syntax": ["///", "//!"]
+    },
     "Cassius": {
       "line_comment": ["//"],
       "multi_line_comments": [["/*", "*/"]],
@@ -187,6 +198,12 @@
       "multi_line_comments": [["/*", "*/"]],
       "quotes": [["\\\"", "\\\""]],
       "extensions": ["h"]
+    },
+    "Circom": {
+      "line_comment": ["//"],
+      "multi_line_comments": [["/*", "*/"]],
+      "quotes": [["\\\"", "\\\""]],
+      "extensions": ["circom"]
     },
     "Clojure": {
       "line_comment": [";"],
@@ -823,6 +840,10 @@
       "nested": true,
       "extensions": ["lean", "hlean"]
     },
+    "Leo": {
+      "line_comment": ["//"],
+      "extensions": ["leo"],
+    },
     "Less": {
       "name": "LESS",
       "line_comment": ["//"],
@@ -1288,6 +1309,9 @@
       "quotes": [["\\\"", "\\\""], ["#\\\"", "\\\"#"]],
       "verbatim_quotes": [["r##\\\"", "\\\"##"], ["r#\\\"", "\\\"#"]]
     },
+    "Tests": {},
+    "Examples": {},
+    "Benchmarks": {},
     "Sass": {
       "line_comment": ["//"],
       "multi_line_comments": [["/*", "*/"]],
@@ -1411,6 +1435,15 @@
       "quotes": [["\\\"", "\\\""], ["'", "'"]],
       "mime": ["image/svg+xml"],
       "extensions": ["svg"]
+    },
+    "Sway": {
+      "line_comment": ["//"],
+      "multi_line_comments": [["/*", "*/"]],
+      "nested": true,
+      "important_syntax": ["///", "//!"],
+      "extensions": ["sw"],
+      "quotes": [["\\\"", "\\\""], ["#\\\"", "\\\"#"]],
+      "verbatim_quotes": [["r##\\\"", "\\\"##"], ["r#\\\"", "\\\"#"]]
     },
     "Swift": {
       "line_comment": ["//"],
@@ -1626,6 +1659,12 @@
       "quotes": [["\\\"", "\\\""], ["'", "'"], ["`", "`"]],
       "important_syntax": ["<script", "<style", "<template"],
       "extensions": ["vue"]
+    },
+    "Vyper": {
+      "line_comment": ["#"],
+      "doc_quotes": [["\\\"\\\"\\\"", "\\\"\\\"\\\""], ["'''", "'''"]],
+      "quotes": [["\\\"", "\\\""], ["'", "'"]],
+      "extensions": ["vy"]
     },
     "WebAssembly": {
       "line_comment": [";;"],
