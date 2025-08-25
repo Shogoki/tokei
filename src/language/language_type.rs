@@ -160,6 +160,9 @@ impl LanguageType {
             let is_test = line == b"#[cfg(test)]" || line == b"#[test]";
             if is_test {
                 let test_start = end + 1;
+                if test_start >= lines.len() {
+                    continue;
+                }
                 let rest = &lines[test_start..];
                 let mut brace_depth: isize = 0;
                 let mut test_length = 0;
